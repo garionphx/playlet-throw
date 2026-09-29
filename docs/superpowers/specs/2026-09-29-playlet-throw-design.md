@@ -52,7 +52,9 @@ playlet-throw/
   background.js          # menus, click handling, notifications
   lib/youtube.js         # extractVideoId(url) — pure
   lib/roku.js            # play/queue/testRoku with fallback — fetch injected
-  lib/storage.js         # get/set Roku list in storage.sync
+  lib/storage.js         # get/set Roku list in storage.sync; host validation
+  lib/menus.js           # menuPlan(rokus) / parseMenuId(id) — pure
+  lib/messages.js        # notification + Test-button text — pure
   content/timestamp.js   # replies with current player time
   options/options.html
   options/options.js
@@ -90,7 +92,15 @@ Accepts hosts `youtube.com`, `www.`, `m.`, `music.` subdomains,
 - `/shorts/ID`, `/embed/ID`, `/live/ID`, `/v/ID`
 
 Returns the ID only if it matches `^[A-Za-z0-9_-]{11}$`; otherwise `null`.
-Invalid URLs, non-YouTube hosts, and `blob:` URLs return `null`.
+Invalid URLs, non-YouTube hosts (including lookalikes such as
+`youtube.com.evil.example`), and `blob:` URLs return `null`.
+
+`extractStartTime(url) → number | null` reads a `t=` or `start=` query param
+(`90`, `90s`, `1m30s`, `1h2m3s`) as whole seconds, so shared links like
+`youtu.be/ID?t=90` start at 90 s. (Added during planning.)
+
+`resolveClick(info) → { videoId, fromLink, startTime } | null` applies the
+resolution order below.
 
 ### lib/storage.js
 
@@ -114,8 +124,14 @@ inject a fake.
   `POST :8888/api/queue`. Fallback is the same launch (with Playlet not
   running the queue is empty, so launch-and-play is the equivalent outcome);
   result `via: "launch"` lets the UI say "Playlet wasn't open — started playing".
-- `testRoku(host, fetch)` → `"ok" | "no-playlet" | "unreachable"` via
+- `testRoku(host, fetch)` → `"ok" | "no-playlet" | "blocked" | "unreachable"` via
   `GET :8060/query/apps`, checking the response text for `id="693751"`.
+  `"blocked"` = the Roku answered with an HTTP error (Control by mobile apps
+  restricted). (Added during planning.)
+
+Failures are returned as reason codes, not text — `{ ok: false, reason:
+"rejected" | "launch-failed" | "unreachable", status? }` — and
+`lib/messages.js` turns them into notification text (it knows the Roku name).
 
 `timestamp` is omitted from requests when null/undefined/0.
 
@@ -127,13 +143,24 @@ that has `currentTime > 0`, else `null`.
 
 ### background.js
 
-**Menus.** Rebuilt on startup and on `storage.onChanged` for `rokus`.
-- Contexts: `link`, `video`, `page`, `frame`.
+**Menus.** Rebuilt on install/startup and on `storage.onChanged` for `rokus`.
 - 0 Rokus: single item "Playlet: set up a Roku…" → opens options.
 - 1 Roku: top-level items "Play on Playlet" and "Add to Playlet queue".
 - 2+ Rokus: the same two parents, each with one child per Roku (by name).
-- Visibility: `menus.onShown` computes the video ID from the click info; if
-  none is found, items are hidden (`menus.update` + `menus.refresh`).
+- Visibility uses static URL filters, not `menus.onShown` (revised during
+  planning: `onShown` only reports link/page URLs for sites the extension
+  has host permission for, so it can't see YouTube links on third-party
+  sites). Each menu tree is created twice, once per "surface":
+  - **link surface:** contexts `["link"]`, `targetUrlPatterns` = YouTube
+    video URL patterns (watch, shorts, live, embed, v, youtu.be, nocookie embed).
+  - **page surface:** contexts `["page", "video"]`, `documentUrlPatterns` =
+    YouTube watch/shorts/live/embed pages (this matches the iframe's URL for
+    embedded players).
+  Firefox only shows `page` when nothing more specific (like a link) was
+  clicked, so the two never appear together.
+- YouTube's player replaces the right-click menu with its own; the user
+  shift+right-clicks the player (or right-clicks elsewhere on the watch
+  page) to get Firefox's menu. Documented in the README.
 
 **Video ID resolution order** (first non-null wins):
 `info.linkUrl` → `info.frameUrl` → `info.pageUrl`.
@@ -159,7 +186,7 @@ with errors swallowed → `null`. Timestamp failure never blocks the send.
 - On Save of a new/changed host: `permissions.request({ origins: ["http://<host>/*"] })`
   (called directly in the click handler to satisfy the user-gesture rule).
 - **Test** shows: "Reachable — Playlet installed" / "Reachable — Playlet not
-  found" / "Unreachable".
+  found" / "Reachable, but Control by mobile apps is restricted" / "Unreachable".
 - Notice + "Grant" button if the YouTube host permission isn't granted.
 - Basic validation: name non-empty; host non-empty, no scheme, no path.
 
