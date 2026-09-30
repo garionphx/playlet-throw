@@ -59,7 +59,7 @@ test('every item carries its surface filter, including children', () => {
       assert.deepEqual(item.targetUrlPatterns, LINK_PATTERNS);
       assert.equal(item.documentUrlPatterns, undefined);
     } else {
-      assert.deepEqual(item.contexts, ['page', 'video']);
+      assert.deepEqual(item.contexts, ['page', 'frame', 'video']);
       assert.deepEqual(item.documentUrlPatterns, PAGE_PATTERNS);
     }
   }

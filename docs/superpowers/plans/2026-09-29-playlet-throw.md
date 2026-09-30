@@ -1376,7 +1376,7 @@ Reload the temporary add-on, then in the options page add the Roku(s) and click 
 | 6 | `youtu.be/<id>?t=90` link on another site → Play | open | TV plays from 1:30 |
 | 7 | Embedded YouTube on a third-party page, Shift+right-click player → Play | open | Plays that video |
 | 8 | Right-click a non-YouTube link or page | — | No Playlet menu items |
-| 9 | Add a second Roku | — | Menu items become submenus listing both names |
+| 9 | Add a second Roku | — | Items (under "Playlet Throw ▸") become per-Roku submenus listing both names |
 | 10 | Edit a Roku to a wrong IP (e.g. `192.168.1.254`) → Play | — | After ~8 s: "Couldn't reach … Check the IP, and that …" |
 | 11 | Remove all Rokus, right-click a YouTube link | — | Only "Playlet: set up a Roku…" |
 

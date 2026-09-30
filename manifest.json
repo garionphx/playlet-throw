@@ -17,6 +17,9 @@
   "permissions": ["menus", "storage", "notifications"],
   "host_permissions": ["*://*.youtube.com/*", "*://*.youtube-nocookie.com/*"],
   "optional_host_permissions": ["http://*/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self';"
+  },
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*", "*://*.youtube-nocookie.com/*"],

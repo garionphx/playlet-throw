@@ -76,6 +76,9 @@ playlet-throw/
   `http://<ip>/*` origins are requested per Roku from the options page.
 - `content_scripts`: `content/timestamp.js` on the YouTube hosts above,
   `all_frames: true`.
+- `content_security_policy.extension_pages`: `"script-src 'self';"` — Firefox's
+  default MV3 CSP adds `upgrade-insecure-requests`, which would rewrite the
+  plain-HTTP LAN requests (Playlet `:8888`, ECP `:8060`) to https and break them.
 - `options_ui: { "page": "options/options.html", "open_in_tab": true }`
 
 Firefox MV3 treats host permissions as user-grantable; the options page shows
@@ -145,17 +148,21 @@ that has `currentTime > 0`, else `null`.
 
 **Menus.** Rebuilt on install/startup and on `storage.onChanged` for `rokus`.
 - 0 Rokus: single item "Playlet: set up a Roku…" → opens options.
-- 1 Roku: top-level items "Play on Playlet" and "Add to Playlet queue".
-- 2+ Rokus: the same two parents, each with one child per Roku (by name).
+- 1 Roku: items "Play on Playlet" and "Add to Playlet queue". Firefox groups
+  an extension's multiple top-level items under a submenu named after it, so
+  they appear as "Playlet Throw ▸ Play on Playlet / Add to Playlet queue".
+- 2+ Rokus: the same two parents, each with one child per Roku (by name):
+  "Playlet Throw ▸ Play on Playlet ▸ <Roku>".
 - Visibility uses static URL filters, not `menus.onShown` (revised during
   planning: `onShown` only reports link/page URLs for sites the extension
   has host permission for, so it can't see YouTube links on third-party
   sites). Each menu tree is created twice, once per "surface":
   - **link surface:** contexts `["link"]`, `targetUrlPatterns` = YouTube
     video URL patterns (watch, shorts, live, embed, v, youtu.be, nocookie embed).
-  - **page surface:** contexts `["page", "video"]`, `documentUrlPatterns` =
+  - **page surface:** contexts `["page", "frame", "video"]`, `documentUrlPatterns` =
     YouTube watch/shorts/live/embed pages (this matches the iframe's URL for
-    embedded players).
+    embedded players). A YouTube link inside an embed may show the entry
+    twice (harmless: both resolve to the same video).
   Firefox only shows `page` when nothing more specific (like a link) was
   clicked, so the two never appear together.
 - YouTube's player replaces the right-click menu with its own; the user

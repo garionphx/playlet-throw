@@ -79,7 +79,13 @@ form.addEventListener('submit', async (event) => {
     return;
   }
   // permissions.request must be the first await so it still counts as a user action.
-  const granted = await browser.permissions.request({ origins: [`http://${result.value.host}/*`] });
+  let granted;
+  try {
+    granted = await browser.permissions.request({ origins: [`http://${result.value.host}/*`] });
+  } catch {
+    formError.textContent = "That doesn't look like a valid IP address or hostname.";
+    return;
+  }
   if (!granted) {
     formError.textContent = 'Firefox needs permission to talk to this Roku. Click Save again and choose Allow.';
     return;

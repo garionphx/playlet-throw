@@ -1,7 +1,7 @@
 # Playlet Throw
 
 A Firefox extension that sends YouTube videos to [Playlet](https://github.com/iBicha/playlet) on your Roku.
-Right-click a YouTube video → **Play on Playlet** or **Add to Playlet queue**.
+Right-click a YouTube video → **Playlet Throw ▸ Play on Playlet** or **Add to Playlet queue**.
 
 ## Roku setup
 
@@ -38,7 +38,8 @@ grant it — that's what lets Play resume at the position you're watching.
   The TV picks up at your current position.
 - **Embedded players** on other sites — Shift+right-click the player.
 
-With more than one Roku configured, each menu item has a submenu to pick the TV.
+With more than one Roku configured, each item becomes a submenu to pick the TV
+(**Playlet Throw ▸ Play on Playlet ▸ <Roku>**).
 
 If Playlet isn't open on the TV, it's launched with your video. "Add to Playlet queue" does the same
 (an empty queue would just play it anyway).
