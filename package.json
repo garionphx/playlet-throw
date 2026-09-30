@@ -1,0 +1,10 @@
+{
+  "name": "playlet-throw",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "lint": "npx --yes web-ext lint --ignore-files \"docs/**\" \"test/**\" package.json README.md"
+  }
+}
