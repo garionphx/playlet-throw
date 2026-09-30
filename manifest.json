@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Playlet Throw",
+  "version": "0.1.0",
+  "description": "Right-click a YouTube video to play or queue it in Playlet on your Roku.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "playlet-throw@garion.local",
+      "strict_min_version": "128.0",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "type": "module"
+  },
+  "permissions": ["menus", "storage", "notifications"],
+  "host_permissions": ["*://*.youtube.com/*", "*://*.youtube-nocookie.com/*"],
+  "optional_host_permissions": ["http://*/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*", "*://*.youtube-nocookie.com/*"],
+      "js": ["content/timestamp.js"],
+      "all_frames": true
+    }
+  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
+}
