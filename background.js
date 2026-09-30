@@ -6,11 +6,18 @@ import { getRokus } from './lib/storage.js';
 
 const SENDERS = { play, queue };
 
-async function rebuildMenus() {
+async function rebuild() {
   await browser.menus.removeAll();
   for (const item of menuPlan(await getRokus())) {
     browser.menus.create(item);
   }
+}
+
+// Serialize rebuilds so overlapping triggers can't interleave removeAll/create.
+let menuRebuild = Promise.resolve();
+function rebuildMenus() {
+  menuRebuild = menuRebuild.then(rebuild).catch((error) => console.error('Menu rebuild failed:', error));
+  return menuRebuild;
 }
 
 function notify(message) {
