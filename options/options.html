@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Playlet Throw — Rokus</title>
+  <style>
+    :root { color-scheme: light dark; --muted: #666; --error: #b00020; --border: #ccc; }
+    @media (prefers-color-scheme: dark) { :root { --muted: #aaa; --error: #ff6b81; --border: #444; } }
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 44rem; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.4rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    th, td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--border); }
+    td.status { color: var(--muted); font-size: .9em; }
+    td.actions { white-space: nowrap; }
+    td.actions button { margin-left: .25rem; }
+    form { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1rem; align-items: center; }
+    form .buttons { grid-column: 2; }
+    .error { color: var(--error); grid-column: 1 / -1; min-height: 1.5em; }
+    .notice { border: 1px solid var(--border); border-radius: 6px; padding: .75rem 1rem; margin-bottom: 1.5rem; }
+    .hint { color: var(--muted); font-size: .9em; }
+  </style>
+</head>
+<body>
+  <h1>Playlet Throw — Rokus</h1>
+
+  <div id="youtube-notice" class="notice" hidden>
+    Playlet Throw needs access to YouTube pages to resume videos at the position you're watching.
+    <button id="youtube-grant" type="button">Grant access</button>
+  </div>
+
+  <table>
+    <thead><tr><th>Name</th><th>IP address</th><th>Status</th><th></th></tr></thead>
+    <tbody id="roku-list"></tbody>
+  </table>
+  <p id="empty" class="hint">No Rokus yet. Add one below.</p>
+
+  <h2 id="form-title">Add a Roku</h2>
+  <form id="roku-form" novalidate>
+    <input id="roku-id" type="hidden">
+    <label for="roku-name">Name</label>
+    <input id="roku-name" placeholder="Living room" autocomplete="off">
+    <label for="roku-host">IP address</label>
+    <input id="roku-host" placeholder="192.168.1.50" autocomplete="off">
+    <p id="form-error" class="error" role="alert"></p>
+    <div class="buttons">
+      <button type="submit">Save</button>
+      <button id="cancel-edit" type="button" hidden>Cancel</button>
+    </div>
+  </form>
+
+  <p class="hint">
+    Find the IP on the Roku under Settings → Network → About. Give it a DHCP reservation on your
+    router so it doesn't change. If Test says the Roku is unreachable or restricted, set
+    Settings → System → Advanced system settings → Control by mobile apps to Enabled.
+  </p>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
