@@ -131,3 +131,15 @@ test('testRoku reports blocked on HTTP error', async () => {
 test('testRoku reports unreachable on network error', async () => {
   assert.equal(await testRoku(HOST, fakeFetch([]), FAST), 'unreachable');
 });
+
+// Playlet's CsrfMiddleware (Oct 2026) answers 403 to any POST without an X-Playlet header.
+test('Playlet requests carry the X-Playlet CSRF header', async () => {
+  for (const [send, path] of [
+    [play, '/api/queue/play'],
+    [queue, '/api/queue'],
+  ]) {
+    const fetchFn = fakeFetch([[`${PLAYLET}${path}`, respond(204)]]);
+    await send({ host: HOST, videoId: ID }, fetchFn, FAST);
+    assert.equal(fetchFn.calls[0].init.headers['X-Playlet'], '1', path);
+  }
+});

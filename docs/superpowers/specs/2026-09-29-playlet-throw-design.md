@@ -35,8 +35,10 @@ Playlet channel ID: `693751`.
 | Launch + play | `POST http://<ip>:8060/launch/693751?contentId=<id>[&timestamp=N]` | No (launches it) |
 | Health check | `GET http://<ip>:8060/query/apps` → XML listing installed apps | No |
 
-Playlet's web server sends `Access-Control-Allow-Origin: *`. `timestamp` is
-integer seconds (see `VideoQueueRouter.bs`, `EcpArgs.bs`).
+Since Oct 2026 Playlet's `CsrfMiddleware` answers 403 to any POST without an
+`X-Playlet` header (any value), so the `:8888` requests send `X-Playlet: 1`. Release
+builds send no `Access-Control-Allow-Origin`; the extension's host permission bypasses
+CORS. `timestamp` is integer seconds (see `VideoQueueRouter.bs`, `EcpArgs.bs`).
 
 Roku OS setting **Settings → System → Advanced system settings → Control by
 mobile apps** must allow network control, otherwise port 8060 is refused.
